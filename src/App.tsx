@@ -1,62 +1,95 @@
-import { useState } from 'react'
-import { useModal, useAccount, useClient } from "@getpara/react-sdk";
-import { useSignHelloWorld } from "./hooks/useSignHelloWorld";
+import { useModal, useAccount } from "@getpara/react-sdk";
 import { ConnectCard } from "./components/ui/ConnectCard";
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { WalletInfo } from './components/ui/WalletInfo';
-import { SignMessage } from './components/ui/SignMessage';
+import { SmartWalletInfo } from './components/ui/SmartWalletInfo';
+import { YieldDashboard } from './components/ui/YieldDashboard';
+import { DepositWithdraw } from './components/ui/DepositWithdraw';
+import { useZyfai } from './contexts/ZyfaiContext';
 
 function App() {
-  const [count, setCount] = useState(0)
-  // Para SDK hooks
   const { openModal } = useModal();
   const { isConnected } = useAccount();
-  //const para = useClient();
-
-    // Sign message hook
-  const { sign, message, isPending, error, signature } = useSignHelloWorld();
+  const { isConnected: zyfaiConnected } = useZyfai();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <div>
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center text-white font-bold text-sm">
+                A
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold tracking-tight">AOC Yield</h1>
+                <p className="text-xs text-gray-500">Multichain Optimization</p>
+              </div>
+            </div>
+
+            {/* Connection Status & Button */}
+            <div className="flex items-center gap-4">
+              {isConnected && zyfaiConnected && (
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Connected
+                </div>
+              )}
+
+              <button
+                onClick={() => openModal()}
+                className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium transition-colors"
+              >
+                {isConnected ? 'Switch Wallet' : 'Connect Wallet'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 container mx-auto px-6 py-8 animate-fade-in">
         {!isConnected ? (
-          <ConnectCard onConnect={openModal} />
+          <div className="max-w-md mx-auto mt-24">
+            <ConnectCard onConnect={openModal} />
+          </div>
         ) : (
-          <div className="max-w-xl mx-auto">
-            <WalletInfo />
-            <SignMessage
-              message={message}
-              onSign={sign}
-              isPending={isPending}
-              error={error}
-              signature={signature}
-            />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {/* Left Column - Wallet & Smart Wallet Info */}
+            <div className="lg:col-span-1 space-y-6">
+              <WalletInfo />
+              <SmartWalletInfo />
+            </div>
+
+            {/* Right Column - Main Actions & Dashboard */}
+            <div className="lg:col-span-2 space-y-6">
+              <DepositWithdraw />
+              <YieldDashboard />
+            </div>
           </div>
         )}
-      </div>
-    </>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 bg-white mt-auto">
+        <div className="container mx-auto px-6 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+            <div className="flex items-center gap-4">
+              <span>© 2024 AOC Yield</span>
+              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">Multichain DeFi Optimization</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <a href="#" className="hover:text-gray-900 transition-colors">Documentation</a>
+              <span>·</span>
+              <a href="#" className="hover:text-gray-900 transition-colors">Support</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
 

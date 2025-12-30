@@ -1,11 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Environment, ParaProvider as ParaSDKProvider } from "@getpara/react-sdk";
-import { sepolia, celo, mainnet, polygon } from "wagmi/chains";
+import {
+  Environment,
+  ParaProvider as ParaSDKProvider,
+} from "@getpara/react-sdk";
+import type { TExternalWallet } from "@getpara/react-sdk";
+import { base } from "wagmi/chains";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
 
 // Para API configuration - set these in your .env file
 const API_KEY = import.meta.env.VITE_PARA_API_KEY;
+const WALLET_CONNECT_PROJECT_ID = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID;
 const ENVIRONMENT = Environment.BETA;
 
 if (!API_KEY) {
@@ -16,7 +21,14 @@ if (!API_KEY) {
   );
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 2,
+    },
+  },
+});
 
 // Chain configurations
 const solanaNetwork = WalletAdapterNetwork.Devnet;
@@ -30,41 +42,7 @@ export function ParaProvider({ children }: { children: React.ReactNode }) {
           apiKey: API_KEY,
           env: ENVIRONMENT,
         }}
-        externalWalletConfig={{
-          wallets: [
-            "METAMASK",
-            "COINBASE",
-            "WALLETCONNECT",
-            "RAINBOW",
-            "ZERION",
-            "KEPLR",
-            "LEAP",
-            "RABBY",
-            "GLOW",
-            "PHANTOM",
-            "BACKPACK",
-            "SOLFLARE",
-          ],
-          createLinkedEmbeddedForExternalWallets: ["METAMASK", "PHANTOM", "KEPLR"],
-          evmConnector: {
-            config: {
-              chains: [mainnet, polygon, sepolia, celo],
-            },
-          },
-          solanaConnector: {
-            config: {
-              endpoint,
-              chain: solanaNetwork,
-              appIdentity: {
-                uri: typeof window !== "undefined" ? `${window.location.protocol}//${window.location.host}` : "",
-              },
-            },
-          },
-          walletConnect: {
-            projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || "",
-          },
-        }}
-        config={{ appName: "Para Modal + Multichain Example" }}
+        config={{ appName: "AOC Yield App" }}
         paraModalConfig={{
           disableEmailLogin: false,
           disablePhoneLogin: false,
@@ -82,10 +60,91 @@ export function ParaProvider({ children }: { children: React.ReactNode }) {
             borderRadius: "none",
             font: "Inter",
           },
-          logo: "/para.svg",
           recoverySecretStepEnabled: true,
           twoFactorAuthEnabled: false,
-        }}>
+        }}
+        externalWalletConfig={{
+          // Supported external wallets in order of appearance
+          wallets: [
+            'Metamask' as TExternalWallet,
+            'Phantom' as TExternalWallet,
+            'Keplr' as TExternalWallet,
+            'Leap' as TExternalWallet,
+          ],
+          // EVM chains configuration - Using Base only (Zyfai primary chain)
+          evmConnector: {
+            config: {
+              chains: [base], // Base (8453) - Primary Zyfai chain
+            },
+          },
+          // Solana configuration
+          solanaConnector: {
+            config: {
+              endpoint,
+              chain: solanaNetwork,
+            },
+          },
+          // Cosmos configuration
+          cosmosConnector: {
+            config: {
+              selectedChainId: "cosmoshub-4", // Cosmos Hub
+              multiChain: true,
+              onSwitchChain: (chainId: string) => {
+                console.log('Switched to chain:', chainId);
+              },
+              chains: [
+                {
+                  chainId: "cosmoshub-4",
+                  chainName: "Cosmos Hub",
+                  rest: "https://api.cosmos.network",
+                  rpc: "https://rpc.cosmos.network",
+                  bip44: { coinType: 118 },
+                  bech32Config: {
+                    bech32PrefixAccAddr: "cosmos",
+                    bech32PrefixAccPub: "cosmospub",
+                    bech32PrefixValAddr: "cosmosvaloper",
+                    bech32PrefixValPub: "cosmosvaloperpub",
+                    bech32PrefixConsAddr: "cosmosvalcons",
+                    bech32PrefixConsPub: "cosmosvalconspub",
+                  },
+                  currencies: [
+                    {
+                      coinDenom: "ATOM",
+                      coinMinimalDenom: "uatom",
+                      coinDecimals: 6,
+                    },
+                  ],
+                  feeCurrencies: [
+                    {
+                      coinDenom: "ATOM",
+                      coinMinimalDenom: "uatom",
+                      coinDecimals: 6,
+                      gasPriceStep: {
+                        low: 0.01,
+                        average: 0.025,
+                        high: 0.04,
+                      },
+                    },
+                  ],
+                  stakeCurrency: {
+                    coinDenom: "ATOM",
+                    coinMinimalDenom: "uatom",
+                    coinDecimals: 6,
+                  },
+                },
+              ],
+            },
+          },
+          // WalletConnect configuration (optional but recommended)
+          walletConnect: WALLET_CONNECT_PROJECT_ID
+            ? { projectId: WALLET_CONNECT_PROJECT_ID }
+            : undefined,
+          // App URL for Solana mobile wallet adapter
+          appUrl: typeof window !== "undefined"
+            ? `${window.location.protocol}//${window.location.host}`
+            : undefined,
+        }}
+      >
         {children}
       </ParaSDKProvider>
     </QueryClientProvider>
