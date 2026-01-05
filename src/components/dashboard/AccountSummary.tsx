@@ -1,8 +1,15 @@
+import { useEffect } from 'react';
 import { usePositions, useEarnings } from '../../hooks/useZyfaiOperations';
 
 export function AccountSummary() {
-  const { positions } = usePositions();
-  const { earnings } = useEarnings();
+  const { fetchPositions, positions } = usePositions();
+  const { fetchEarnings, earnings } = useEarnings();
+
+  // Fetch data on mount
+  useEffect(() => {
+    fetchPositions();
+    fetchEarnings();
+  }, []);
 
   // Calculate totals from all position slots
   const totalDeposited = positions?.positions?.reduce((sum, position) => {

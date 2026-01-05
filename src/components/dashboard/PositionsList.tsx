@@ -1,7 +1,13 @@
+import { useEffect } from 'react';
 import { usePositions } from '../../hooks/useZyfaiOperations';
 
 export function PositionsList() {
-  const { positions, isPending } = usePositions();
+  const { fetchPositions, positions, isPending } = usePositions();
+
+  // Fetch positions on mount
+  useEffect(() => {
+    fetchPositions();
+  }, []);
 
   if (isPending) {
     return (
