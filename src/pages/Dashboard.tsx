@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useZyfai } from '../contexts/ZyfaiContext';
 import { WalletInfo } from '../components/ui/WalletInfo';
 import { SmartWalletInfo } from '../components/ui/SmartWalletInfo';
@@ -12,7 +12,16 @@ import { ConnectPrompt } from '../components/ui/ConnectPrompt';
 export default function Dashboard() {
   const { isConnected: zyfaiConnected, connectZyfaiManually } = useZyfai();
   const [isConnecting, setIsConnecting] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(!zyfaiConnected);
+  const [showPrompt, setShowPrompt] = useState(false);
+
+  // Only show prompt if not connected to Zyfai
+  useEffect(() => {
+    if (!zyfaiConnected) {
+      setShowPrompt(true);
+    } else {
+      setShowPrompt(false);
+    }
+  }, [zyfaiConnected]);
 
   const handleConnect = async () => {
     setIsConnecting(true);
