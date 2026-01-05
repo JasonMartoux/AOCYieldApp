@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useCreateSessionKey } from '../../hooks/useZyfaiOperations';
 import { useZyfai } from '../../contexts/ZyfaiContext';
 

@@ -74,8 +74,12 @@ export interface WithdrawResponse {
 export interface PositionSlot {
   protocol_id?: string;
   protocol_name?: string;
+  protocol_icon?: string;
   pool?: string;
+  token_id?: string;
   token_symbol?: string;
+  token_icon?: string;
+  amount?: string;
   underlyingAmount?: string;
   pool_apy?: number;
   pool_tvl?: number;

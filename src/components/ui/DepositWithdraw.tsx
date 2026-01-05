@@ -3,17 +3,48 @@ import { useDepositFunds, useWithdrawFunds, usePositions, useEarnings } from '..
 import { useZyfai } from '../../contexts/ZyfaiContext';
 import type { SupportedChainId } from '../../types/zyfai';
 import { ChainNames, ChainTokens } from '../../types/zyfai';
+import { useWallet } from '@getpara/react-sdk';
+import { useBalance } from 'wagmi';
+import { formatUnits } from 'viem';
+
+// USDC/USDT contract addresses per chain
+const TOKEN_ADDRESSES = {
+  8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Base USDC
+  42161: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', // Arbitrum USDC
+  9745: '0x0Fd9e8d3aF1aaee056EB9e802c3A762a667b1904', // Plasma USDT
+} as const;
 
 export function DepositWithdraw() {
-  const { isConnected, isDeployed, currentChainId } = useZyfai();
+  const { isConnected, isDeployed, currentChainId, smartWalletAddress } = useZyfai();
   const { deposit, depositData, isPending: depositPending, error: depositError } = useDepositFunds();
   const { withdraw, withdrawData, isPending: withdrawPending, error: withdrawError } = useWithdrawFunds();
   const { fetchPositions } = usePositions();
   const { fetchEarnings } = useEarnings();
+  const { data: wallet } = useWallet();
 
   const [amount, setAmount] = useState('');
   const [selectedChain, setSelectedChain] = useState<SupportedChainId>(currentChainId || 8453);
   const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit');
+
+  // Get wallet balance for selected token (for deposit max)
+  const { data: walletBalanceData } = useBalance({
+    address: wallet?.address as `0x${string}` | undefined,
+    token: TOKEN_ADDRESSES[selectedChain],
+    chainId: selectedChain,
+  });
+
+  // Get Safe wallet balance for selected token (for withdraw max)
+  const { data: safeBalanceData } = useBalance({
+    address: smartWalletAddress as `0x${string}` | undefined,
+    token: TOKEN_ADDRESSES[selectedChain],
+    chainId: selectedChain,
+  });
+
+  // Helper to format balance from wei to human-readable format
+  const getFormattedBalance = (balanceData: typeof walletBalanceData): string => {
+    if (!balanceData?.value || !balanceData?.decimals) return '0.00';
+    return formatUnits(balanceData.value, balanceData.decimals);
+  };
 
   // Refresh positions and earnings after successful deposit/withdrawal
   useEffect(() => {
@@ -28,6 +59,15 @@ export function DepositWithdraw() {
       return () => clearTimeout(refreshTimer);
     }
   }, [depositData, withdrawData]);
+
+  // Handle Max button click
+  const handleMaxClick = () => {
+    if (activeTab === 'deposit' && walletBalanceData) {
+      setAmount(getFormattedBalance(walletBalanceData));
+    } else if (activeTab === 'withdraw' && safeBalanceData) {
+      setAmount(getFormattedBalance(safeBalanceData));
+    }
+  };
 
   if (!isConnected || !isDeployed) {
     return null;
@@ -144,9 +184,31 @@ export function DepositWithdraw() {
 
         {/* Amount Input */}
         <div className="mb-6">
-          <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">
-            Amount ({ChainTokens[selectedChain]})
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide">
+              Amount ({ChainTokens[selectedChain]})
+            </label>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-gray-500">
+                Available: {activeTab === 'deposit'
+                  ? getFormattedBalance(walletBalanceData)
+                  : getFormattedBalance(safeBalanceData)
+                } {ChainTokens[selectedChain]}
+              </span>
+              <button
+                type="button"
+                onClick={handleMaxClick}
+                disabled={
+                  isPending ||
+                  (activeTab === 'deposit' && !walletBalanceData?.value) ||
+                  (activeTab === 'withdraw' && !safeBalanceData?.value)
+                }
+                className="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                MAX
+              </button>
+            </div>
+          </div>
           <div className="relative">
             <input
               type="number"

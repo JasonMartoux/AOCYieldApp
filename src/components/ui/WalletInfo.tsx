@@ -1,8 +1,9 @@
-import { useWallet, useModal } from "@getpara/react-sdk";
+import { useWallet, useModal, useLogout } from "@getpara/react-sdk";
 
 export function WalletInfo() {
   const { data: wallet } = useWallet();
-  const { closeModal, logout } = useModal();
+  const { closeModal } = useModal();
+  const { logout } = useLogout();
   const address = wallet?.address;
 
   if (!address) return null;

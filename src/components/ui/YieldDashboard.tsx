@@ -171,21 +171,31 @@ export function YieldDashboard() {
                   {Object.entries(apyHistory.history)
                     .slice(-5)
                     .reverse()
-                    .map(([date, entry]: [string, any]) => (
-                      <div key={date} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                        <span className="text-xs text-gray-600">{date}</span>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="text-xs font-medium text-gray-900">
-                              {entry.apy?.toFixed(2)}% APY
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Weighted: {entry.weightedApy?.toFixed(2)}%
-                            </p>
+                    .map(([date, entry]: [string, any]) => {
+                      // Use the actual field names from the API response
+                      const finalApy = typeof entry === 'object' && entry.final_weighted_apy !== undefined
+                        ? entry.final_weighted_apy.toFixed(2)
+                        : 'n/a';
+                      const weightedApy = typeof entry === 'object' && entry.weighted_apy !== undefined
+                        ? entry.weighted_apy.toFixed(2)
+                        : 'n/a';
+
+                      return (
+                        <div key={date} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                          <span className="text-xs text-gray-600">{date}</span>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <p className="text-xs font-medium text-gray-900">
+                                {finalApy}% APY
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Base: {weightedApy}%
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                 </div>
               </div>
             )}
@@ -352,16 +362,39 @@ export function YieldDashboard() {
                               <p className="text-sm font-bold text-emerald-600">
                                 {slot.pool_apy.toFixed(2)}%
                               </p>
-                              <p className="text-xs text-gray-500">APY</p>
+                              <p className="text-xs text-gray-500">Pool APY</p>
                             </div>
                           )}
                         </div>
+
+                        {/* APY Details */}
+                        {slot.pool_apy && (
+                          <div className="mt-3 p-2.5 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-semibold text-emerald-900">Pool APY</span>
+                              <span className="font-mono font-bold text-lg text-emerald-700">
+                                {slot.pool_apy.toFixed(2)}%
+                              </span>
+                            </div>
+                            {slot.pool_tvl && (
+                              <div className="flex items-center justify-between text-xs text-emerald-700">
+                                <span>Total Value Locked:</span>
+                                <span className="font-mono font-medium">
+                                  ${(slot.pool_tvl / 1e6).toFixed(2)}M
+                                </span>
+                              </div>
+                            )}
+                            <p className="text-xs text-gray-600 mt-2 italic border-t border-emerald-200 pt-2">
+                              💡 APY automatically optimized by Zyfai AI
+                            </p>
+                          </div>
+                        )}
 
                         {slot.underlyingAmount && (
                           <div className="mt-2 flex items-baseline gap-2">
                             <p className="text-xs font-medium text-gray-700">Balance:</p>
                             <p className="text-sm font-mono text-gray-900">
-                              {formatUSD(parseFloat(slot.underlyingAmount))} {slot.token_symbol}
+                              {formatUSD(parseAmount(slot.underlyingAmount, slot.token_symbol))} {slot.token_symbol}
                             </p>
                           </div>
                         )}

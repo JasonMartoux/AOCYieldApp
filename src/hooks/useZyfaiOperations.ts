@@ -63,6 +63,7 @@ export function usePositions() {
 
     try {
       const result = await sdk.getPositions(connectedAddress, chainId);
+      console.log('📊 Positions response:', JSON.stringify(result, null, 2));
       setPositions(result);
       return result;
     } catch (err) {

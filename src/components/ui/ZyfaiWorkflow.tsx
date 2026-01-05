@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useZyfai } from '../../contexts/ZyfaiContext';
 import { useCreateSessionKey, usePositions } from '../../hooks/useZyfaiOperations';
 
@@ -14,7 +13,6 @@ export function ZyfaiWorkflow() {
   const { isConnected, isDeployed, hasSessionKey, smartWalletAddress } = useZyfai();
   const { createSessionKey, isPending: sessionPending, sessionKeyData, error: sessionError } = useCreateSessionKey();
   const { positions } = usePositions();
-  const [currentStep, setCurrentStep] = useState(1);
 
   const handleCreateSessionKey = async () => {
     console.log('🔘 Session key button clicked');
@@ -71,16 +69,6 @@ export function ZyfaiWorkflow() {
       description: 'Your funds are earning optimized returns',
     },
   ];
-
-  // Update current step based on completion
-  useEffect(() => {
-    const firstIncompleteStep = steps.find(
-      (s) => s.status === 'in_progress' || s.status === 'pending'
-    );
-    if (firstIncompleteStep) {
-      setCurrentStep(firstIncompleteStep.id);
-    }
-  }, [isConnected, isDeployed, hasSessionKey, hasPositions]);
 
   const getStepIcon = (step: WorkflowStep) => {
     if (step.status === 'completed') {

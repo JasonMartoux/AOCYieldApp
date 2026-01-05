@@ -13,7 +13,7 @@ import { useZyfai } from './contexts/ZyfaiContext';
 function App() {
   const { openModal } = useModal();
   const { isConnected } = useAccount();
-  const { isConnected: zyfaiConnected, hasSessionKey } = useZyfai();
+  const { isConnected: zyfaiConnected } = useZyfai();
 
   return (
     <div className="min-h-screen flex flex-col">
