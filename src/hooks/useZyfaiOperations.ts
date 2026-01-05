@@ -11,7 +11,7 @@ import type {
 } from '../types/zyfai';
 
 export function useDeploySafe() {
-  const { sdk, isConnected, connectedAddress, currentChainId } = useZyfai();
+  const { sdk, isConnected, connectedAddress, currentChainId, refreshWalletInfo } = useZyfai();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [deploymentData, setDeploymentData] = useState<DeploySafeResponse | null>(null);
@@ -27,7 +27,12 @@ export function useDeploySafe() {
 
     try {
       const result = await sdk.deploySafe(connectedAddress, currentChainId);
+      console.log(result);
       setDeploymentData(result);
+
+      // Refresh wallet info to update isDeployed status
+      await refreshWalletInfo();
+
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to deploy Safe');
@@ -167,25 +172,41 @@ export function useEarnings() {
 
 // Hook for creating session key (enables gasless transactions)
 export function useCreateSessionKey() {
-  const { sdk, isConnected, connectedAddress, currentChainId } = useZyfai();
+  const { sdk, isConnected, connectedAddress, currentChainId, refreshWalletInfo } = useZyfai();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [sessionKeyData, setSessionKeyData] = useState<SessionKeyResponse | null>(null);
 
   const createSessionKey = async () => {
+    console.log('🔑 Creating session key...');
+    console.log('SDK:', !!sdk);
+    console.log('Connected:', isConnected);
+    console.log('Address:', connectedAddress);
+    console.log('Chain:', currentChainId);
+
     if (!sdk || !isConnected || !connectedAddress || !currentChainId) {
-      setError(new Error('SDK not connected or missing address/chain'));
-      return;
+      const errorMsg = 'SDK not connected or missing address/chain';
+      console.error('❌ Cannot create session key:', errorMsg);
+      const err = new Error(errorMsg);
+      setError(err);
+      throw err;
     }
 
     setIsPending(true);
     setError(null);
 
     try {
+      console.log('📡 Calling sdk.createSessionKey...');
       const result = await sdk.createSessionKey(connectedAddress, currentChainId);
+      console.log('✅ Session key created:', result);
       setSessionKeyData(result);
+
+      // Refresh wallet info to update session key status
+      await refreshWalletInfo();
+
       return result;
     } catch (err) {
+      console.error('❌ Session key creation failed:', err);
       const error = err instanceof Error ? err : new Error('Failed to create session key');
       setError(error);
       throw error;
@@ -195,4 +216,191 @@ export function useCreateSessionKey() {
   };
 
   return { createSessionKey, sessionKeyData, isPending, error };
+}
+
+// Hook for getting safe yield opportunities
+export function useGetOpportunities() {
+  const { sdk, currentChainId } = useZyfai();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [safeOpportunities, setSafeOpportunities] = useState<any | null>(null);
+  const [degenStrategies, setDegenStrategies] = useState<any | null>(null);
+
+  const fetchSafeOpportunities = async (chainId?: SupportedChainId) => {
+    const targetChain = chainId || currentChainId;
+    if (!sdk || !targetChain) {
+      setError(new Error('SDK not connected or chain not specified'));
+      return;
+    }
+
+    setIsPending(true);
+    setError(null);
+
+    try {
+      const result = await sdk.getSafeOpportunities(targetChain);
+      setSafeOpportunities(result);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to fetch safe opportunities');
+      setError(error);
+      throw error;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const fetchDegenStrategies = async (chainId?: SupportedChainId) => {
+    const targetChain = chainId || currentChainId;
+    if (!sdk || !targetChain) {
+      setError(new Error('SDK not connected or chain not specified'));
+      return;
+    }
+
+    setIsPending(true);
+    setError(null);
+
+    try {
+      const result = await sdk.getDegenStrategies(targetChain);
+      setDegenStrategies(result);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to fetch degen strategies');
+      setError(error);
+      throw error;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return { fetchSafeOpportunities, fetchDegenStrategies, safeOpportunities, degenStrategies, isPending, error };
+}
+
+// Hook for getting daily APY history
+export function useGetApyHistory() {
+  const { sdk, smartWalletAddress } = useZyfai();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [apyHistory, setApyHistory] = useState<any | null>(null);
+
+  const fetchApyHistory = async (period: '7D' | '14D' | '30D' = '30D') => {
+    if (!sdk || !smartWalletAddress) {
+      setError(new Error('SDK not connected or smart wallet not deployed'));
+      return;
+    }
+
+    setIsPending(true);
+    setError(null);
+
+    try {
+      const result = await sdk.getDailyApyHistory(smartWalletAddress, period);
+      setApyHistory(result);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to fetch APY history');
+      setError(error);
+      throw error;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return { fetchApyHistory, apyHistory, isPending, error };
+}
+
+// Hook for getting daily earnings
+export function useGetDailyEarnings() {
+  const { sdk, smartWalletAddress } = useZyfai();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [dailyEarnings, setDailyEarnings] = useState<any | null>(null);
+
+  const fetchDailyEarnings = async (startDate: string, endDate: string) => {
+    if (!sdk || !smartWalletAddress) {
+      setError(new Error('SDK not connected or smart wallet not deployed'));
+      return;
+    }
+
+    setIsPending(true);
+    setError(null);
+
+    try {
+      const result = await sdk.getDailyEarnings(smartWalletAddress, startDate, endDate);
+      setDailyEarnings(result);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to fetch daily earnings');
+      setError(error);
+      throw error;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return { fetchDailyEarnings, dailyEarnings, isPending, error };
+}
+
+// Hook for getting transaction history
+export function useGetHistory() {
+  const { sdk, smartWalletAddress, currentChainId } = useZyfai();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [history, setHistory] = useState<any | null>(null);
+
+  const fetchHistory = async (options?: { limit?: number; offset?: number; fromDate?: string; toDate?: string }, chainId?: SupportedChainId) => {
+    const targetChain = chainId || currentChainId;
+    if (!sdk || !smartWalletAddress || !targetChain) {
+      setError(new Error('SDK not connected or smart wallet not deployed'));
+      return;
+    }
+
+    setIsPending(true);
+    setError(null);
+
+    try {
+      const result = await sdk.getHistory(smartWalletAddress, targetChain, options);
+      setHistory(result);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to fetch transaction history');
+      setError(error);
+      throw error;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return { fetchHistory, history, isPending, error };
+}
+
+// Hook for getting available protocols
+export function useGetProtocols() {
+  const { sdk, currentChainId } = useZyfai();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [protocols, setProtocols] = useState<any | null>(null);
+
+  const fetchProtocols = async (chainId?: SupportedChainId) => {
+    const targetChain = chainId || currentChainId;
+    if (!sdk || !targetChain) {
+      setError(new Error('SDK not connected or chain not specified'));
+      return;
+    }
+
+    setIsPending(true);
+    setError(null);
+
+    try {
+      const result = await sdk.getAvailableProtocols(targetChain);
+      setProtocols(result);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to fetch protocols');
+      setError(error);
+      throw error;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return { fetchProtocols, protocols, isPending, error };
 }

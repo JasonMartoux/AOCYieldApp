@@ -5,12 +5,15 @@ import { WalletInfo } from './components/ui/WalletInfo';
 import { SmartWalletInfo } from './components/ui/SmartWalletInfo';
 import { YieldDashboard } from './components/ui/YieldDashboard';
 import { DepositWithdraw } from './components/ui/DepositWithdraw';
+import { OpportunitiesPanel } from './components/ui/OpportunitiesPanel';
+import { TransactionHistory } from './components/ui/TransactionHistory';
+import { ZyfaiWorkflow } from './components/ui/ZyfaiWorkflow';
 import { useZyfai } from './contexts/ZyfaiContext';
 
 function App() {
   const { openModal } = useModal();
   const { isConnected } = useAccount();
-  const { isConnected: zyfaiConnected } = useZyfai();
+  const { isConnected: zyfaiConnected, hasSessionKey } = useZyfai();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -56,17 +59,30 @@ function App() {
             <ConnectCard onConnect={openModal} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-            {/* Left Column - Wallet & Smart Wallet Info */}
-            <div className="lg:col-span-1 space-y-6">
-              <WalletInfo />
-              <SmartWalletInfo />
+          <div className="space-y-6 max-w-7xl mx-auto">
+            {/* Top Row - Wallet Info & Actions */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Wallet & Smart Wallet Info */}
+              <div className="lg:col-span-1 space-y-6">
+                <WalletInfo />
+                <SmartWalletInfo />
+                {/* Setup Progress - Shows completion state when ready */}
+                <ZyfaiWorkflow />
+              </div>
+
+              {/* Right Column - Deposit/Withdraw */}
+              <div className="lg:col-span-2">
+                <DepositWithdraw />
+              </div>
             </div>
 
-            {/* Right Column - Main Actions & Dashboard */}
-            <div className="lg:col-span-2 space-y-6">
-              <DepositWithdraw />
-              <YieldDashboard />
+            {/* Yield Dashboard */}
+            <YieldDashboard />
+
+            {/* Bottom Row - Opportunities & History */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <OpportunitiesPanel />
+              <TransactionHistory />
             </div>
           </div>
         )}

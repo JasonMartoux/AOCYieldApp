@@ -17,6 +17,7 @@ interface ZyfaiContextType {
   connectZyfai: () => Promise<void>;
   disconnectZyfai: () => void;
   clearError: () => void;
+  refreshWalletInfo: () => Promise<void>;
 }
 
 const ZyfaiContext = createContext<ZyfaiContextType | undefined>(undefined);
@@ -129,9 +130,20 @@ export function ZyfaiProvider({ children }: { children: ReactNode }) {
         chainId: supportedChainId,
       });
 
-      // Check if session key exists (for gasless transactions)
-      // Note: Session key check should be done after deploying Safe
-      setHasSessionKey(false);
+      // Check session key status if Safe is deployed
+      if (walletInfo.isDeployed) {
+        try {
+          const positions = await sdk.getPositions(eoaAddress, supportedChainId);
+          const hasSessionKey = positions.positions?.[0]?.hasActiveSessionKey || false;
+          setHasSessionKey(hasSessionKey);
+          console.log('Initial session key status:', hasSessionKey);
+        } catch (error) {
+          console.warn('Could not check session key status on connect:', error);
+          setHasSessionKey(false);
+        }
+      } else {
+        setHasSessionKey(false);
+      }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to connect Zyfai';
       setError(errorMsg);
@@ -175,6 +187,35 @@ export function ZyfaiProvider({ children }: { children: ReactNode }) {
     setError(null);
   };
 
+  const refreshWalletInfo = async () => {
+    if (!sdk || !connectedAddress || !currentChainId) {
+      console.warn('Cannot refresh wallet info: SDK or address not available');
+      return;
+    }
+
+    try {
+      const walletInfo = await sdk.getSmartWalletAddress(connectedAddress, currentChainId);
+      setSmartWalletAddress(walletInfo.address);
+      setIsDeployed(walletInfo.isDeployed);
+      console.log('Wallet info refreshed:', walletInfo);
+
+      // Also check session key status if Safe is deployed
+      if (walletInfo.isDeployed) {
+        try {
+          const positions = await sdk.getPositions(connectedAddress, currentChainId);
+          // Session key status is nested in the first position object
+          const hasSessionKey = positions.positions?.[0]?.hasActiveSessionKey || false;
+          console.log('Session key status:', hasSessionKey);
+          setHasSessionKey(hasSessionKey);
+        } catch (error) {
+          console.warn('Could not check session key status:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh wallet info:', error);
+    }
+  };
+
   // Auto-connect when Para wallet connects
   useEffect(() => {
     if (account.isConnected && sdk && walletClient && !isConnected) {
@@ -196,6 +237,7 @@ export function ZyfaiProvider({ children }: { children: ReactNode }) {
     connectZyfai,
     disconnectZyfai,
     clearError,
+    refreshWalletInfo,
   };
 
   return <ZyfaiContext.Provider value={value}>{children}</ZyfaiContext.Provider>;

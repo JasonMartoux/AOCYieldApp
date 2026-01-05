@@ -1,18 +1,23 @@
-import { useEffect } from 'react';
-import { usePositions, useEarnings } from '../../hooks/useZyfaiOperations';
+import { useEffect, useState } from 'react';
+import { usePositions, useEarnings, useGetApyHistory } from '../../hooks/useZyfaiOperations';
 import { useZyfai } from '../../contexts/ZyfaiContext';
+import { SafeBalance } from './SafeBalance';
+import { SessionKeyManager } from './SessionKeyManager';
 
 export function YieldDashboard() {
   const { isConnected, isDeployed } = useZyfai();
   const { fetchPositions, positions, isPending: positionsPending, error: positionsError } = usePositions();
   const { fetchEarnings, earnings, isPending: earningsPending, error: earningsError } = useEarnings();
+  const { fetchApyHistory, apyHistory } = useGetApyHistory();
+  const [apyPeriod, setApyPeriod] = useState<'7D' | '14D' | '30D'>('30D');
 
   useEffect(() => {
     if (isConnected && isDeployed) {
       fetchPositions();
       fetchEarnings();
+      fetchApyHistory(apyPeriod);
     }
-  }, [isConnected, isDeployed]);
+  }, [isConnected, isDeployed, apyPeriod]);
 
   if (!isConnected || !isDeployed) {
     return null;
@@ -20,8 +25,164 @@ export function YieldDashboard() {
 
   const hasPositions = positions && positions.positions && positions.positions.length > 0;
 
+  // Helper function to safely parse and round amounts
+  // Handles both raw units (1500000) and human-readable formats (1.5)
+  // Following Para SDK best practices for USDC (6 decimals)
+  const parseAmount = (amount: string | undefined, symbol?: string): number => {
+    if (!amount) return 0;
+    const parsed = parseFloat(amount);
+    if (isNaN(parsed)) return 0;
+
+    // If amount is very large (>10000) and token is USDC/USDT, assume it's in raw units
+    // USDC/USDT have 6 decimals: 1 USDC = 1000000 raw units
+    const isStablecoin = symbol === 'USDC' || symbol === 'USDT';
+    if (isStablecoin && parsed > 10000) {
+      // Convert from raw units (6 decimals)
+      return Math.round((parsed / 1e6) * 100) / 100;
+    }
+
+    // Otherwise, assume already in human-readable format
+    return Math.round(parsed * 100) / 100;
+  };
+
+  // Calculate total invested amount from positions
+  const totalInvested = positions?.positions.reduce((total, position) => {
+    const positionTotal = position.positions?.reduce((sum, slot) => {
+      return sum + parseAmount(slot.underlyingAmount, slot.token_symbol);
+    }, 0) || 0;
+    return total + positionTotal;
+  }, 0) || 0;
+
+  // Count active protocols
+  const activeProtocols = positions?.positions.reduce((count, position) => {
+    return count + (position.positions?.length || 0);
+  }, 0) || 0;
+
+  // Format USD amounts with proper decimal handling
+  const formatUSD = (amount: number): string => {
+    return amount.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   return (
+    
     <div className="space-y-6">
+      {/* Safe Balance (Not Yet Invested) */}
+      <SafeBalance />
+
+      {/* Session Key Manager */}
+      <SessionKeyManager />
+
+      {/* Balance Overview Summary */}
+      <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3.5 bg-emerald-600 border-b border-emerald-700">
+          <h3 className="text-xs font-semibold text-white uppercase tracking-wide">Balance Overview</h3>
+        </div>
+
+        <div className="px-5 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Total Invested */}
+            <div className="text-center">
+              <p className="text-xs font-medium text-emerald-700 uppercase tracking-wide mb-2">Total Invested</p>
+              <p className="text-3xl font-bold text-emerald-900 font-mono">
+                ${formatUSD(totalInvested)}
+              </p>
+              {activeProtocols > 0 && (
+                <p className="text-xs text-emerald-600 mt-1">
+                  {activeProtocols} {activeProtocols === 1 ? 'protocol' : 'protocols'}
+                </p>
+              )}
+            </div>
+
+            {/* Total Earnings */}
+            <div className="text-center border-l border-emerald-300 pl-6">
+              <p className="text-xs font-medium text-emerald-700 uppercase tracking-wide mb-2">Total Earnings</p>
+              <p className="text-3xl font-bold text-emerald-900 font-mono">
+                ${formatUSD(earnings?.data?.totalEarnings || 0)}
+              </p>
+              <p className="text-xs text-emerald-600 mt-1">Onchain verified</p>
+            </div>
+
+            {/* Total Value */}
+            <div className="text-center border-l border-emerald-300 pl-6">
+              <p className="text-xs font-medium text-emerald-700 uppercase tracking-wide mb-2">Total Value</p>
+              <p className="text-3xl font-bold text-emerald-900 font-mono">
+                ${formatUSD(totalInvested + (earnings?.data?.totalEarnings || 0))}
+              </p>
+              <p className="text-xs text-emerald-600 mt-1">Invested + Earnings</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      {/* APY History */}
+      {apyHistory && (
+        <div className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-5 py-3.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+            <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">APY Performance</h3>
+            <div className="flex gap-1">
+              {(['7D', '14D', '30D'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setApyPeriod(period)}
+                  className={`px-2 py-1 text-xs font-medium transition-all ${
+                    apyPeriod === period
+                      ? 'bg-emerald-600 text-white'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="px-5 py-5">
+            <div className="text-center">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Average Weighted APY ({apyPeriod})
+              </p>
+              <p className="text-4xl font-bold text-emerald-600 font-mono mb-1">
+                {apyHistory.averageWeightedApy?.toFixed(2) || '0.00'}%
+              </p>
+              <p className="text-xs text-gray-500">
+                Based on {apyHistory.totalDays || 0} days of data
+              </p>
+            </div>
+
+            {/* Recent Daily Breakdown */}
+            {apyHistory.history && Object.keys(apyHistory.history).length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <p className="text-xs font-medium text-gray-700 mb-3">Recent Performance</p>
+                <div className="space-y-2">
+                  {Object.entries(apyHistory.history)
+                    .slice(-5)
+                    .reverse()
+                    .map(([date, entry]: [string, any]) => (
+                      <div key={date} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                        <span className="text-xs text-gray-600">{date}</span>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-xs font-medium text-gray-900">
+                              {entry.apy?.toFixed(2)}% APY
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Weighted: {entry.weightedApy?.toFixed(2)}%
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Earnings Overview */}
       <div className="bg-white border border-gray-200 shadow-sm overflow-hidden">
         <div className="px-5 py-3.5 bg-gray-50 border-b border-gray-200">
@@ -46,7 +207,7 @@ export function YieldDashboard() {
               <div className="border-l-4 border-emerald-500 pl-4">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Total Earnings</p>
                 <p className="text-2xl font-bold text-emerald-600 font-mono">
-                  ${(earnings.data.totalEarnings || 0).toFixed(2)}
+                  ${formatUSD(earnings.data.totalEarnings || 0)}
                 </p>
               </div>
 
@@ -54,7 +215,7 @@ export function YieldDashboard() {
               <div className="border-l-4 border-gray-300 pl-4">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Current</p>
                 <p className="text-2xl font-bold text-gray-900 font-mono">
-                  ${(earnings.data.currentEarnings || 0).toFixed(2)}
+                  ${formatUSD(earnings.data.currentEarnings || 0)}
                 </p>
               </div>
 
@@ -62,7 +223,7 @@ export function YieldDashboard() {
               <div className="border-l-4 border-gray-300 pl-4">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Lifetime</p>
                 <p className="text-2xl font-bold text-gray-900 font-mono">
-                  ${(earnings.data.lifetimeEarnings || 0).toFixed(2)}
+                  ${formatUSD(earnings.data.lifetimeEarnings || 0)}
                 </p>
               </div>
             </div>
@@ -145,7 +306,7 @@ export function YieldDashboard() {
                           <div className="mt-2 flex items-baseline gap-2">
                             <p className="text-xs font-medium text-gray-700">Balance:</p>
                             <p className="text-sm font-mono text-gray-900">
-                              {parseFloat(slot.underlyingAmount).toFixed(4)} {slot.token_symbol}
+                              {formatUSD(parseFloat(slot.underlyingAmount))} {slot.token_symbol}
                             </p>
                           </div>
                         )}

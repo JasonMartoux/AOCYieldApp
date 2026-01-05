@@ -9,9 +9,10 @@ export default defineConfig({
     nodePolyfills({
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
-    })
+    }),
   ],
   server: {
-    allowedHosts: true
+    allowedHosts: true,
+    port: 4004
   }
 })

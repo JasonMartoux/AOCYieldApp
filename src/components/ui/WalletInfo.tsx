@@ -11,6 +11,7 @@ export function WalletInfo() {
     logout();
     closeModal();
   };
+  
 
   return (
     <div className="bg-white border border-gray-200 shadow-sm overflow-hidden">

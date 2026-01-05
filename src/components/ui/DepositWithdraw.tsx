@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useDepositFunds, useWithdrawFunds } from '../../hooks/useZyfaiOperations';
+import { useState, useEffect } from 'react';
+import { useDepositFunds, useWithdrawFunds, usePositions, useEarnings } from '../../hooks/useZyfaiOperations';
 import { useZyfai } from '../../contexts/ZyfaiContext';
 import type { SupportedChainId } from '../../types/zyfai';
 import { ChainNames, ChainTokens } from '../../types/zyfai';
@@ -8,10 +8,26 @@ export function DepositWithdraw() {
   const { isConnected, isDeployed, currentChainId } = useZyfai();
   const { deposit, depositData, isPending: depositPending, error: depositError } = useDepositFunds();
   const { withdraw, withdrawData, isPending: withdrawPending, error: withdrawError } = useWithdrawFunds();
+  const { fetchPositions } = usePositions();
+  const { fetchEarnings } = useEarnings();
 
   const [amount, setAmount] = useState('');
   const [selectedChain, setSelectedChain] = useState<SupportedChainId>(currentChainId || 8453);
   const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit');
+
+  // Refresh positions and earnings after successful deposit/withdrawal
+  useEffect(() => {
+    if (depositData || withdrawData) {
+      // Wait a bit for the blockchain to process the transaction
+      const refreshTimer = setTimeout(() => {
+        console.log('Refreshing positions and earnings after transaction...');
+        fetchPositions();
+        fetchEarnings();
+      }, 3000); // Wait 3 seconds before refreshing
+
+      return () => clearTimeout(refreshTimer);
+    }
+  }, [depositData, withdrawData]);
 
   if (!isConnected || !isDeployed) {
     return null;

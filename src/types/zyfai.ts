@@ -82,10 +82,21 @@ export interface PositionSlot {
 }
 
 export interface Position {
+  user?: string;
+  eoa?: string;
   chain?: string;
+  chains?: number[];
   strategy?: string;
   smartWallet?: string;
   positions: PositionSlot[];
+  hasActiveSessionKey?: boolean;
+  hasBalance?: boolean;
+  newSessionKeyAvailable?: boolean;
+  hasStaleBalance?: any[];
+  contracts?: any[];
+  omniAccount?: boolean;
+  crosschainStrategy?: boolean;
+  executorProxy?: boolean;
 }
 
 export interface PositionsResponse {
