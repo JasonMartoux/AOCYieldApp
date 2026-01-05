@@ -15,6 +15,7 @@ interface ZyfaiContextType {
   hasSessionKey: boolean;
   error: string | null;
   connectZyfai: () => Promise<void>;
+  connectZyfaiManually: () => Promise<void>;
   disconnectZyfai: () => void;
   clearError: () => void;
   refreshWalletInfo: () => Promise<void>;
@@ -216,14 +217,20 @@ export function ZyfaiProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Auto-connect when Para wallet connects
+  // Manual connection method - user must explicitly connect Zyfai
+  const connectZyfaiManually = async () => {
+    if (!account.isConnected) {
+      throw new Error('Connect Para wallet first');
+    }
+    await connectZyfai();
+  };
+
+  // Auto-disconnect when Para wallet disconnects
   useEffect(() => {
-    if (account.isConnected && sdk && walletClient && !isConnected) {
-      connectZyfai();
-    } else if (!account.isConnected && isConnected) {
+    if (!account.isConnected && isConnected) {
       disconnectZyfai();
     }
-  }, [account.isConnected, sdk, walletClient, isConnected]);
+  }, [account.isConnected, isConnected]);
 
   const value: ZyfaiContextType = {
     sdk,
@@ -235,6 +242,7 @@ export function ZyfaiProvider({ children }: { children: ReactNode }) {
     hasSessionKey,
     error,
     connectZyfai,
+    connectZyfaiManually,
     disconnectZyfai,
     clearError,
     refreshWalletInfo,
