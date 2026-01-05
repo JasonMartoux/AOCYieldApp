@@ -19,7 +19,7 @@ export function FeeDisclosure() {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-700">Performance Fee</span>
-            <span className="font-semibold text-gray-900">10% of earnings</span>
+            <span className="font-semibold text-emerald-600">FREE</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-700">Gas Costs (one-time setup)</span>
@@ -27,10 +27,10 @@ export function FeeDisclosure() {
           </div>
         </div>
 
-        <div className="bg-gray-50 p-4 border-l-4 border-emerald-600 mb-4">
-          <div className="text-sm font-semibold text-gray-900 mb-1">Example:</div>
+        <div className="bg-emerald-50 p-4 border-l-4 border-emerald-600 mb-4">
+          <div className="text-sm font-semibold text-gray-900 mb-1">Zero Fees:</div>
           <div className="text-sm text-gray-700">
-            Earn $100 → We take $10 → <strong>You keep $90</strong>
+            <strong>You keep 100% of your earnings</strong> - no performance fee charged
           </div>
         </div>
 

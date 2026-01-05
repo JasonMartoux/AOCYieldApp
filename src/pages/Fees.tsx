@@ -40,10 +40,10 @@ export default function Fees() {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Performance Fee</h3>
                   <p className="text-sm text-gray-600">
-                    We take 10% of your earnings. That's it. If you don't profit, we don't profit.
+                    You keep 100% of your earnings. No performance fee charged.
                   </p>
                 </div>
-                <div className="text-2xl font-bold text-gray-900">10%</div>
+                <div className="text-2xl font-bold text-emerald-600">FREE</div>
               </div>
 
               {/* Gas Fees */}
@@ -77,13 +77,9 @@ export default function Fees() {
                   <span className="text-gray-600">Earn 10% APY over 1 year:</span>
                   <span className="font-semibold">$50</span>
                 </div>
-                <div className="flex justify-between border-t border-emerald-300 pt-2">
-                  <span className="text-gray-600">Our 10% fee:</span>
-                  <span className="font-semibold text-red-600">-$5</span>
-                </div>
                 <div className="flex justify-between text-lg font-bold border-t-2 border-emerald-600 pt-2">
                   <span>You keep:</span>
-                  <span className="text-emerald-700">$545</span>
+                  <span className="text-emerald-700">$550</span>
                 </div>
               </div>
             </div>
@@ -100,13 +96,9 @@ export default function Fees() {
                   <span className="text-gray-600">Earn 12% APY over 1 year:</span>
                   <span className="font-semibold">$1,200</span>
                 </div>
-                <div className="flex justify-between border-t border-emerald-300 pt-2">
-                  <span className="text-gray-600">Our 10% fee:</span>
-                  <span className="font-semibold text-red-600">-$120</span>
-                </div>
                 <div className="flex justify-between text-lg font-bold border-t-2 border-emerald-600 pt-2">
                   <span>You keep:</span>
-                  <span className="text-emerald-700">$11,080</span>
+                  <span className="text-emerald-700">$11,200</span>
                 </div>
               </div>
             </div>
@@ -125,7 +117,7 @@ export default function Fees() {
             </p>
             <p className="text-gray-700">
               <strong>How it works:</strong> We use ERC-4337 account abstraction and sponsor gas fees
-              on your behalf. This is covered by our 10% performance fee.
+              on your behalf.
             </p>
           </div>
         </section>
@@ -146,7 +138,7 @@ export default function Fees() {
               <tbody className="divide-y divide-gray-200">
                 <tr className="bg-emerald-50">
                   <td className="py-3 px-4 font-semibold">AOC Yield (Us)</td>
-                  <td className="py-3 px-4">10%</td>
+                  <td className="py-3 px-4 text-emerald-600 font-semibold">0%</td>
                   <td className="py-3 px-4">~$2-5 setup (one-time)</td>
                 </tr>
                 <tr>
@@ -187,8 +179,8 @@ export default function Fees() {
 
             <div className="mt-6 pt-6 border-t border-gray-700">
               <p className="text-sm text-gray-400">
-                <strong>Bottom line:</strong> We make money when you make money.
-                If you lose money, we don't take a fee. Simple as that.
+                <strong>Bottom line:</strong> You keep 100% of your earnings.
+                Zero performance fees. Simple as that.
               </p>
             </div>
           </div>

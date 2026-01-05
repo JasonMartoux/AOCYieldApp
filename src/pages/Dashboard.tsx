@@ -5,6 +5,7 @@ import { WalletDetails } from '../components/dashboard/WalletDetails';
 import { AccountSummary } from '../components/dashboard/AccountSummary';
 import { ActionPanel } from '../components/dashboard/ActionPanel';
 import { PositionsList } from '../components/dashboard/PositionsList';
+import { ApyHistory } from '../components/dashboard/ApyHistory';
 
 export default function Dashboard() {
   const { isConnected: zyfaiConnected, connectZyfaiManually } = useZyfai();
@@ -82,14 +83,21 @@ export default function Dashboard() {
       {/* Middle Section: Deposit/Withdraw */}
       <ActionPanel />
 
-      {/* Bottom Section: Positions */}
-      <PositionsList />
+      {/* Bottom Section: Positions & APY History */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <PositionsList />
+        </div>
+        <div>
+          <ApyHistory />
+        </div>
+      </div>
 
       {/* Disclaimers */}
       <div className="bg-gray-50 border border-gray-300 p-4">
         <p className="text-xs text-gray-600">
           <strong>Important:</strong> APY rates are not guaranteed and change based on market conditions.
-          Past performance does not indicate future results. We charge a 10% performance fee on earnings only.
+          Past performance does not indicate future results.
           Your deposits are not insured. Only invest what you can afford to lose.{' '}
           <a href="/risks" className="underline hover:text-gray-900">
             Read full risk disclosure

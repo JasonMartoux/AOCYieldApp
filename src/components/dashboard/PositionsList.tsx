@@ -64,7 +64,9 @@ export function PositionsList() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {allSlots.map((slot, index) => {
-                const amount = parseFloat(slot.amount || '0');
+                // underlyingAmount is in raw units (6 decimals for USDC/USDT)
+                const rawAmount = parseFloat(slot.underlyingAmount || '0');
+                const amount = rawAmount / 1_000_000; // Convert to actual token amount
                 const apy = slot.pool_apy || 0;
                 const dailyEarnings = (amount * apy) / 365 / 100;
 

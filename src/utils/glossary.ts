@@ -40,7 +40,7 @@ export const glossary: Record<string, GlossaryTerm> = {
     term: 'Gas Fees',
     full: 'Gas Fees',
     short: 'The cost to process blockchain transactions.',
-    detailed: 'Gas Fees are paid to network validators to process your transaction. You pay this to the blockchain, not to us. We cover ongoing gas fees through our performance fee.',
+    detailed: 'Gas Fees are paid to network validators to process your transaction. You pay this to the blockchain, not to us. We sponsor ongoing gas fees for your convenience.',
   },
   usdc: {
     term: 'USDC',
