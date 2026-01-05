@@ -225,6 +225,48 @@ export function ZyfaiProvider({ children }: { children: ReactNode }) {
     await connectZyfai();
   };
 
+  // Auto-connect if user already has a Safe deployed (returning user)
+  // New users will need to manually connect
+  useEffect(() => {
+    const checkAndAutoConnect = async () => {
+      if (account.isConnected && sdk && walletClient && !isConnected) {
+        try {
+          // Get address from wallet client
+          const eoa = walletClient.account?.address;
+          const chainId = walletClient.chain?.id;
+
+          if (eoa && chainId && sdk) {
+            // Map to supported chain IDs
+            const supportedChainId: SupportedChainId =
+              chainId === 42161 ? 42161 :
+              chainId === 9745 ? 9745 :
+              8453; // Default to Base
+
+            // Check if Safe exists for this address
+            try {
+              const walletInfo = await sdk.getSmartWalletAddress(eoa, supportedChainId);
+
+              // If Safe exists and is deployed, auto-connect (returning user)
+              if (walletInfo.isDeployed) {
+                console.log('🔄 Existing Safe detected, auto-connecting...');
+                await connectZyfai();
+              } else {
+                console.log('ℹ️ No existing Safe found, manual setup required');
+              }
+            } catch (error) {
+              // If check fails, user needs to manually connect
+              console.log('ℹ️ Could not check for existing Safe, manual setup required');
+            }
+          }
+        } catch (error) {
+          console.warn('Could not check for existing Safe:', error);
+        }
+      }
+    };
+
+    checkAndAutoConnect();
+  }, [account.isConnected, sdk, walletClient, isConnected]);
+
   // Auto-disconnect when Para wallet disconnects
   useEffect(() => {
     if (!account.isConnected && isConnected) {
