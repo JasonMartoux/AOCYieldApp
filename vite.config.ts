@@ -14,5 +14,10 @@ export default defineConfig({
   server: {
     allowedHosts: true,
     port: 4004
-  }
+  },
+  build: {
+    sourcemap: false,          // 🔥 énorme gain mémoire
+    minify: 'esbuild',         // plus léger que terser
+    target: 'es2020',
+  },
 })

@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - VITE_PARA_API_KEY=${VITE_PARA_API_KEY}
+        - VITE_ZYFAI_API_KEY=${VITE_ZYFAI_API_KEY}
+        - VITE_ZYFAI_ENVIRONMENT=${VITE_ZYFAI_ENVIRONMENT}
+    environment:
+      NODE_ENV: production
+    ports:
+      - 4004:3000
