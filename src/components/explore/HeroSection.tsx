@@ -17,8 +17,12 @@ export function HeroSection() {
   // Calculate best APY when data arrives
   useEffect(() => {
     if (safeOpportunities && safeOpportunities.data && safeOpportunities.data.length > 0) {
-      const sorted = [...safeOpportunities.data].sort((a, b) => b.apy - a.apy);
-      setBestApy(sorted[0].apy);
+      // Filter only live opportunities
+      const liveOpportunities = safeOpportunities.data.filter((opp: any) => opp.status === 'live');
+      if (liveOpportunities.length > 0) {
+        const sorted = [...liveOpportunities].sort((a, b) => b.apy - a.apy);
+        setBestApy(sorted[0].apy);
+      }
     }
   }, [safeOpportunities]);
 

@@ -21,34 +21,39 @@ export function ProtocolBreakdown() {
   // Process opportunities to extract top protocols
   useEffect(() => {
     if (safeOpportunities && safeOpportunities.data && safeOpportunities.data.length > 0) {
-      // Group by protocol name and get the best APY for each
-      const protocolMap = new Map<string, { apy: number; tvl: number }>();
+      // Filter only live opportunities
+      const liveOpportunities = safeOpportunities.data.filter((opp: any) => opp.status === 'live');
 
-      safeOpportunities.data.forEach((opp) => {
-        const protocolName = opp.protocolName || 'Unknown';
-        const existing = protocolMap.get(protocolName);
+      if (liveOpportunities.length > 0) {
+        // Group by protocol name and get the best APY for each
+        const protocolMap = new Map<string, { apy: number; tvl: number }>();
 
-        if (!existing || opp.apy > existing.apy) {
-          protocolMap.set(protocolName, {
-            apy: opp.apy,
-            tvl: opp.tvl || 0,
-          });
-        }
-      });
+        liveOpportunities.forEach((opp: any) => {
+          const protocolName = opp.protocolName || 'Unknown';
+          const existing = protocolMap.get(protocolName);
 
-      // Convert to array and sort by APY
-      const protocolsArray = Array.from(protocolMap.entries())
-        .map(([name, data]) => ({
-          name,
-          apy: `${data.apy.toFixed(2)}%`,
-          tvl: data.tvl > 0 ? `$${(data.tvl / 1e6).toFixed(1)}M` : 'N/A',
-          risk: 'Low',
-          riskBadge: 'badge-success',
-        }))
-        .sort((a, b) => parseFloat(b.apy) - parseFloat(a.apy))
-        .slice(0, 5); // Top 5 protocols
+          if (!existing || opp.apy > existing.apy) {
+            protocolMap.set(protocolName, {
+              apy: opp.apy,
+              tvl: opp.tvl || 0,
+            });
+          }
+        });
 
-      setProtocols(protocolsArray);
+        // Convert to array and sort by APY
+        const protocolsArray = Array.from(protocolMap.entries())
+          .map(([name, data]) => ({
+            name,
+            apy: `${data.apy.toFixed(2)}%`,
+            tvl: data.tvl > 0 ? `$${(data.tvl / 1e6).toFixed(1)}M` : 'N/A',
+            risk: 'Low',
+            riskBadge: 'badge-success',
+          }))
+          .sort((a, b) => parseFloat(b.apy) - parseFloat(a.apy))
+          .slice(0, 5); // Top 5 protocols
+
+        setProtocols(protocolsArray);
+      }
     }
   }, [safeOpportunities]);
 

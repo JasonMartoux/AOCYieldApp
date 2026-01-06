@@ -15,18 +15,26 @@ export function StrategyComparison() {
   // Calculate average APY for Safe Strategy
   useEffect(() => {
     if (safeOpportunities && safeOpportunities.data && safeOpportunities.data.length > 0) {
-      const totalApy = safeOpportunities.data.reduce((sum, opp) => sum + opp.apy, 0);
-      const avgApy = totalApy / safeOpportunities.data.length;
-      setSafeAvgApy(avgApy);
+      // Filter only live opportunities
+      const liveOpportunities = safeOpportunities.data.filter((opp: any) => opp.status === 'live');
+      if (liveOpportunities.length > 0) {
+        const totalApy = liveOpportunities.reduce((sum: number, opp: any) => sum + opp.apy, 0);
+        const avgApy = totalApy / liveOpportunities.length;
+        setSafeAvgApy(avgApy);
+      }
     }
   }, [safeOpportunities]);
 
   // Calculate average APY for Degen Strategy
   useEffect(() => {
     if (degenStrategies && degenStrategies.data && degenStrategies.data.length > 0) {
-      const totalApy = degenStrategies.data.reduce((sum, strat) => sum + strat.apy, 0);
-      const avgApy = totalApy / degenStrategies.data.length;
-      setDegenAvgApy(avgApy);
+      // Filter only live strategies
+      const liveStrategies = degenStrategies.data.filter((strat: any) => strat.status === 'live');
+      if (liveStrategies.length > 0) {
+        const totalApy = liveStrategies.reduce((sum: number, strat: any) => sum + strat.apy, 0);
+        const avgApy = totalApy / liveStrategies.length;
+        setDegenAvgApy(avgApy);
+      }
     }
   }, [degenStrategies]);
 
