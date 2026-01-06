@@ -2,9 +2,7 @@
 # À utiliser dans Coolify pour éviter de builder sur le serveur
 services:
   app:
-    # Remplacez <username>/<repo> par votre repo GitHub
-    # Exemple: ghcr.io/jasonsmith/aocyieldapp:latest
-    image: ghcr.io/${GITHUB_REPO}:latest
+    image: ghcr.io/jasonmartoux/aocyieldapp:latest
 
     environment:
       NODE_ENV: production

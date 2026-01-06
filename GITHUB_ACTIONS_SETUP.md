@@ -38,7 +38,7 @@ Au lieu de builder sur le serveur, modifiez votre configuration Coolify :
 ### Option A : Image publique (plus simple)
 Dans Coolify, changez le **Build Pack** de "Dockerfile" vers "Docker Image" et utilisez :
 ```
-ghcr.io/<votre-username>/<votre-repo>:latest
+ghcr.io/jasonmartoux/aocyieldapp:latest
 ```
 
 ### Option B : Image privée
@@ -82,4 +82,4 @@ git push
 
 2. Allez dans l'onglet **Actions** de votre repo pour voir le build en cours
 
-3. Une fois terminé, l'image sera disponible à `ghcr.io/<username>/<repo>:latest`
+3. Une fois terminé, l'image sera disponible à `ghcr.io/jasonmartoux/aocyieldapp:latest`
