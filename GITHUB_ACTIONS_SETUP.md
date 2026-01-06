@@ -63,7 +63,7 @@ Le workflow crée plusieurs tags :
 - `main` ou `redesign-better-ux` : dernière version de la branche
 - `main-<sha>` : version spécifique avec le commit SHA
 
-## Avantages
+## Avantages https://yield.lowfey.com
 
 - 🚀 Build rapide (7GB RAM sur GitHub)
 - 💰 Gratuit pour repos publics
@@ -82,4 +82,4 @@ git push
 
 2. Allez dans l'onglet **Actions** de votre repo pour voir le build en cours
 
-3. Une fois terminé, l'image sera disponible à `ghcr.io/jasonmartoux/aocyieldapp:latest`
+3. Une fois terminé, l'image sera disponible à `https://ghcr.io/jasonmartoux/aocyieldapp:latest`
