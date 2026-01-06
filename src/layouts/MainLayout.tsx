@@ -22,15 +22,15 @@ export function MainLayout() {
       {/* Header */}
       <header className="navbar bg-base-100 shadow-lg sticky top-0 z-50 min-h-[4.5rem] border-b border-base-300">
         <div className="navbar-start">
-          <Link to="/" className="btn btn-ghost normal-case gap-3 hover:bg-base-200">
-            <div className="avatar avatar-placeholder">
-              <div className="bg-primary text-primary-content rounded-xl w-11 shadow-lg">
-                <span className="text-xl font-bold">A</span>
-              </div>
-            </div>
-            <div className="flex flex-col items-start">
-              <span className="font-bold text-xl tracking-tight">LowFey Curator App</span>
-              <span className="text-xs opacity-60 font-medium">Honest DeFi. No BS.</span>
+          <Link to="/" className="btn btn-ghost normal-case gap-2 hover:bg-base-200">
+            <div className="flex items-center gap-1">
+              <span className="font-bold text-2xl tracking-tight" style={{ fontFamily: 'Readex Pro, sans-serif' }}>
+                lowfey
+              </span>
+              <span className="w-2 h-2 rounded-full bg-primary mb-3"></span>
+              <span className="font-normal text-xl tracking-tight opacity-70" style={{ fontFamily: 'Readex Pro, sans-serif' }}>
+                com
+              </span>
             </div>
           </Link>
         </div>
@@ -125,7 +125,7 @@ export function MainLayout() {
         </div>
         <div>
           <p className="text-sm opacity-70">
-            ©2026 ACE OF CLUBS - Multichain DeFi Optimization
+            ©2026 LowFey - Honest DeFi Curator
           </p>
         </div>
       </footer>
