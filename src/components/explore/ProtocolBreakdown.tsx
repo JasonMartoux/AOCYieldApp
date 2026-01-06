@@ -1,27 +1,56 @@
+import { useEffect, useState } from 'react';
+import { useGetOpportunities } from '../../hooks/useZyfaiOperations';
+
+interface Protocol {
+  name: string;
+  apy: string;
+  tvl: string;
+  risk: string;
+  riskBadge: string;
+}
+
 export function ProtocolBreakdown() {
-  const protocols = [
-    {
-      name: 'Morpho',
-      apy: '8.2%',
-      tvl: '$124M',
-      risk: 'Low',
-      riskBadge: 'badge-success',
-    },
-    {
-      name: 'Aave',
-      apy: '7.8%',
-      tvl: '$2.1B',
-      risk: 'Low',
-      riskBadge: 'badge-success',
-    },
-    {
-      name: 'Compound',
-      apy: '7.5%',
-      tvl: '$980M',
-      risk: 'Low',
-      riskBadge: 'badge-success',
-    },
-  ];
+  const { fetchSafeOpportunities, safeOpportunities, isPending } = useGetOpportunities();
+  const [protocols, setProtocols] = useState<Protocol[]>([]);
+
+  // Fetch opportunities on mount (Base chain by default)
+  useEffect(() => {
+    fetchSafeOpportunities(8453); // Base chain
+  }, []);
+
+  // Process opportunities to extract top protocols
+  useEffect(() => {
+    if (safeOpportunities && safeOpportunities.data && safeOpportunities.data.length > 0) {
+      // Group by protocol name and get the best APY for each
+      const protocolMap = new Map<string, { apy: number; tvl: number }>();
+
+      safeOpportunities.data.forEach((opp) => {
+        const protocolName = opp.protocolName || 'Unknown';
+        const existing = protocolMap.get(protocolName);
+
+        if (!existing || opp.apy > existing.apy) {
+          protocolMap.set(protocolName, {
+            apy: opp.apy,
+            tvl: opp.tvl || 0,
+          });
+        }
+      });
+
+      // Convert to array and sort by APY
+      const protocolsArray = Array.from(protocolMap.entries())
+        .map(([name, data]) => ({
+          name,
+          apy: `${data.apy.toFixed(2)}%`,
+          tvl: data.tvl > 0 ? `$${(data.tvl / 1e6).toFixed(1)}M` : 'N/A',
+          risk: 'Low',
+          riskBadge: 'badge-success',
+        }))
+        .sort((a, b) => parseFloat(b.apy) - parseFloat(a.apy))
+        .slice(0, 5); // Top 5 protocols
+
+      setProtocols(protocolsArray);
+    }
+  }, [safeOpportunities]);
 
   return (
     <section className="max-w-4xl mx-auto mb-16">
@@ -44,22 +73,39 @@ export function ProtocolBreakdown() {
               </tr>
             </thead>
             <tbody>
-              {protocols.map((protocol) => (
-                <tr key={protocol.name} className="hover">
-                  <td>
-                    <span className="font-semibold">{protocol.name}</span>
-                  </td>
-                  <td>
-                    <span className="text-success font-medium">{protocol.apy}</span>
-                  </td>
-                  <td>
-                    <span className="opacity-70">{protocol.tvl}</span>
-                  </td>
-                  <td>
-                    <span className={`badge ${protocol.riskBadge}`}>{protocol.risk}</span>
+              {isPending && protocols.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-8">
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="loading loading-spinner loading-md text-success"></span>
+                      <span className="opacity-70">Loading protocols...</span>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : protocols.length > 0 ? (
+                protocols.map((protocol) => (
+                  <tr key={protocol.name} className="hover">
+                    <td>
+                      <span className="font-semibold">{protocol.name}</span>
+                    </td>
+                    <td>
+                      <span className="text-success font-medium">{protocol.apy}</span>
+                    </td>
+                    <td>
+                      <span className="opacity-70">{protocol.tvl}</span>
+                    </td>
+                    <td>
+                      <span className={`badge ${protocol.riskBadge}`}>{protocol.risk}</span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="text-center py-8 opacity-70">
+                    No protocol data available
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

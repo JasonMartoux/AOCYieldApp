@@ -1,26 +1,26 @@
 import { useEffect, useState } from 'react';
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<string>('winter');
+  const [theme, setTheme] = useState<string>('corporate');
 
   useEffect(() => {
     // Check initial theme from localStorage or system preference
     const stored = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = stored || (prefersDark ? 'night' : 'winter');
+    const initialTheme = stored || (prefersDark ? 'monokaidark' : 'corporate');
 
     setTheme(initialTheme);
     document.documentElement.setAttribute('data-theme', initialTheme);
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'winter' ? 'night' : 'winter';
+    const newTheme = theme === 'corporate' ? 'monokaidark' : 'corporate';
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
   };
 
-  const isDark = theme === 'night';
+  const isDark = theme === 'monokaidark';
 
   return (
     <label className="swap swap-rotate btn btn-ghost btn-circle">

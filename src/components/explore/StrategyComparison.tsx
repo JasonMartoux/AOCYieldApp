@@ -1,4 +1,35 @@
+import { useEffect, useState } from 'react';
+import { useGetOpportunities } from '../../hooks/useZyfaiOperations';
+
 export function StrategyComparison() {
+  const { fetchSafeOpportunities, fetchDegenStrategies, safeOpportunities, degenStrategies, isPending } = useGetOpportunities();
+  const [safeAvgApy, setSafeAvgApy] = useState<number | null>(null);
+  const [degenAvgApy, setDegenAvgApy] = useState<number | null>(null);
+
+  // Fetch opportunities on mount (Base chain by default)
+  useEffect(() => {
+    fetchSafeOpportunities(8453); // Base chain
+    fetchDegenStrategies(8453); // Base chain
+  }, []);
+
+  // Calculate average APY for Safe Strategy
+  useEffect(() => {
+    if (safeOpportunities && safeOpportunities.data && safeOpportunities.data.length > 0) {
+      const totalApy = safeOpportunities.data.reduce((sum, opp) => sum + opp.apy, 0);
+      const avgApy = totalApy / safeOpportunities.data.length;
+      setSafeAvgApy(avgApy);
+    }
+  }, [safeOpportunities]);
+
+  // Calculate average APY for Degen Strategy
+  useEffect(() => {
+    if (degenStrategies && degenStrategies.data && degenStrategies.data.length > 0) {
+      const totalApy = degenStrategies.data.reduce((sum, strat) => sum + strat.apy, 0);
+      const avgApy = totalApy / degenStrategies.data.length;
+      setDegenAvgApy(avgApy);
+    }
+  }, [degenStrategies]);
+
   return (
     <section className="max-w-4xl mx-auto mb-16">
       <h2 className="text-2xl font-bold mb-6 text-center">
@@ -20,8 +51,19 @@ export function StrategyComparison() {
             </div>
 
             <div className="mb-4">
-              <div className="text-3xl font-bold text-success mb-1">8.2%</div>
-              <div className="text-sm opacity-60">Average APY</div>
+              {isPending && !safeAvgApy ? (
+                <div className="flex items-center gap-2">
+                  <span className="loading loading-spinner loading-sm text-success"></span>
+                  <span className="text-lg opacity-70">Loading...</span>
+                </div>
+              ) : (
+                <>
+                  <div className="text-3xl font-bold text-success mb-1">
+                    {safeAvgApy ? `${safeAvgApy.toFixed(1)}%` : '8-12%'}
+                  </div>
+                  <div className="text-sm opacity-60">Average APY</div>
+                </>
+              )}
             </div>
 
             <div className="space-y-2 mb-4">
@@ -66,8 +108,19 @@ export function StrategyComparison() {
             </div>
 
             <div className="mb-4">
-              <div className="text-3xl font-bold text-warning mb-1">15.4%</div>
-              <div className="text-sm opacity-60">Average APY</div>
+              {isPending && !degenAvgApy ? (
+                <div className="flex items-center gap-2">
+                  <span className="loading loading-spinner loading-sm text-warning"></span>
+                  <span className="text-lg opacity-70">Loading...</span>
+                </div>
+              ) : (
+                <>
+                  <div className="text-3xl font-bold text-warning mb-1">
+                    {degenAvgApy ? `${degenAvgApy.toFixed(1)}%` : '15-25%'}
+                  </div>
+                  <div className="text-sm opacity-60">Average APY</div>
+                </>
+              )}
             </div>
 
             <div className="space-y-2 mb-4">
