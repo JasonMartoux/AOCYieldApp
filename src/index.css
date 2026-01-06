@@ -3,7 +3,7 @@
 
 @plugin "daisyui/theme" {
   name: "monokailight";
-  default: false;
+  default: true;
   prefersdark: false;
   color-scheme: light;
   --color-base-100: #faf4f2;

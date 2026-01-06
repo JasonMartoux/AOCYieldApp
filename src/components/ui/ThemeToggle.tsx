@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<string>('corporate');
+  const [theme, setTheme] = useState<string>('monokailight');
 
   useEffect(() => {
     // Check initial theme from localStorage or system preference
     const stored = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = stored || (prefersDark ? 'monokaidark' : 'corporate');
+    const initialTheme = stored || (prefersDark ? 'monokaidark' : 'monokailight');
 
     setTheme(initialTheme);
     document.documentElement.setAttribute('data-theme', initialTheme);
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'corporate' ? 'monokaidark' : 'corporate';
+    const newTheme = theme === 'monokailight' ? 'monokaidark' : 'monokailight';
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
