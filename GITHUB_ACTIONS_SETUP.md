@@ -63,7 +63,7 @@ Le workflow crée plusieurs tags :
 - `main` ou `redesign-better-ux` : dernière version de la branche
 - `main-<sha>` : version spécifique avec le commit SHA
 
-## Avantages https://yield.lowfey.com
+## Avantages 
 
 - 🚀 Build rapide (7GB RAM sur GitHub)
 - 💰 Gratuit pour repos publics
