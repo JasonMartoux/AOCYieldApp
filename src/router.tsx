@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { PublicLayout } from './layouts/PublicLayout';
-import { DashboardLayout } from './layouts/DashboardLayout';
+import { MainLayout } from './layouts/MainLayout';
 import ExploreMode from './pages/ExploreMode';
 import Dashboard from './pages/Dashboard';
 import Glossary from './pages/Glossary';
@@ -10,7 +9,7 @@ import Fees from './pages/Fees';
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <PublicLayout />,
+    element: <MainLayout />,
     children: [
       {
         index: true,
@@ -28,14 +27,8 @@ export const router = createBrowserRouter([
         path: 'fees',
         element: <Fees />,
       },
-    ],
-  },
-  {
-    path: '/dashboard',
-    element: <DashboardLayout />,
-    children: [
       {
-        index: true,
+        path: 'dashboard',
         element: <Dashboard />,
       },
     ],

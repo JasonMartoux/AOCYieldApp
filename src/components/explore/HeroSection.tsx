@@ -16,29 +16,28 @@ export function HeroSection() {
 
   return (
     <section className="max-w-4xl mx-auto text-center mb-16">
-      <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+      <h1 className="text-4xl md:text-5xl font-bold mb-6">
         Earn More on Your Stablecoins
       </h1>
-      <p className="text-xl text-gray-600 mb-8">
+      <p className="text-xl opacity-80 mb-8">
         Simple. Transparent. Actually Safe.
       </p>
 
-      <div className="bg-white border border-gray-200 p-8 mb-8">
-        <div className="text-sm text-gray-500 uppercase tracking-wide mb-2">
-          Current Best APY (Live)
-        </div>
-        <div className="text-5xl font-bold text-emerald-600 mb-2">
-          11.96%
-        </div>
-        <div className="text-sm text-gray-600">
-          Base APY: 8.26% + Rewards: 3.70%
+      <div className="card card-bordered shadow-xl mb-8">
+        <div className="card-body">
+          <div className="text-sm opacity-70 uppercase tracking-wide mb-2">
+            Current Best APY (Live)
+          </div>
+          <div className="text-5xl font-bold text-success mb-2">
+            11.96%
+          </div>
+          <div className="text-sm opacity-80">
+            Base APY: 8.26% + Rewards: 3.70%
+          </div>
         </div>
       </div>
 
-      <button
-        onClick={handleStartEarning}
-        className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-lg font-medium transition-colors"
-      >
+      <button onClick={handleStartEarning} className="btn btn-success btn-lg">
         Start Earning →
       </button>
     </section>

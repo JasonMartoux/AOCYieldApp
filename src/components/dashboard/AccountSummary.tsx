@@ -25,38 +25,39 @@ export function AccountSummary() {
   const currentValue = totalDeposited + totalEarned;
 
   return (
-    <div className="bg-white border border-gray-300">
-      <div className="border-b border-gray-300 px-4 py-3 bg-gray-50">
-        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
+    <div className="card card-bordered shadow-xl">
+      <div className="card-body">
+        <h2 className="card-title text-base uppercase tracking-wide">
           Account Summary
         </h2>
-      </div>
 
-      <div className="p-6">
-        <table className="w-full text-sm">
-          <tbody className="divide-y divide-gray-200">
-            <tr>
-              <td className="py-3 text-gray-600">Current Value</td>
-              <td className="py-3 text-right font-mono font-semibold text-gray-900">
-                ${currentValue.toFixed(2)}
-              </td>
-            </tr>
-            <tr>
-              <td className="py-3 text-gray-600">Total Deposited</td>
-              <td className="py-3 text-right font-mono text-gray-700">
-                ${totalDeposited.toFixed(2)}
-              </td>
-            </tr>
-            <tr className="border-t-2 border-gray-900">
-              <td className="py-3 font-bold text-gray-900">Total Earnings</td>
-              <td className="py-3 text-right font-mono font-bold text-gray-900">
-                ${totalEarned.toFixed(2)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="table">
+            <tbody>
+              <tr>
+                <td className="text-base">Current Value</td>
+                <td className="text-right font-mono font-semibold text-xl">
+                  ${currentValue.toFixed(2)}
+                </td>
+              </tr>
+              <tr>
+                <td className="text-base">Total Deposited</td>
+                <td className="text-right font-mono text-lg">
+                  ${totalDeposited.toFixed(2)}
+                </td>
+              </tr>
+              <tr className="border-t-2 border-base-300">
+                <td className="font-bold text-base">Total Earnings</td>
+                <td className="text-right font-mono font-bold text-lg">
+                  ${totalEarned.toFixed(2)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-200 text-xs text-gray-500">
+        <div className="divider my-2"></div>
+        <div className="text-sm opacity-60">
           <p>Current Value = Deposited + Earnings</p>
         </div>
       </div>

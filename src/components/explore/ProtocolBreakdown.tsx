@@ -5,65 +5,67 @@ export function ProtocolBreakdown() {
       apy: '8.2%',
       tvl: '$124M',
       risk: 'Low',
-      riskColor: 'text-emerald-600',
+      riskBadge: 'badge-success',
     },
     {
       name: 'Aave',
       apy: '7.8%',
       tvl: '$2.1B',
       risk: 'Low',
-      riskColor: 'text-emerald-600',
+      riskBadge: 'badge-success',
     },
     {
       name: 'Compound',
       apy: '7.5%',
       tvl: '$980M',
       risk: 'Low',
-      riskColor: 'text-emerald-600',
+      riskBadge: 'badge-success',
     },
   ];
 
   return (
     <section className="max-w-4xl mx-auto mb-16">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+      <h2 className="text-2xl font-bold mb-6 text-center">
         Protocol Breakdown
       </h2>
-      <p className="text-gray-600 text-center mb-8">
+      <p className="opacity-70 text-center mb-8">
         See exactly where your money goes
       </p>
 
-      <div className="bg-white border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Protocol</th>
-              <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">APY</th>
-              <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">TVL</th>
-              <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Risk</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {protocols.map((protocol) => (
-              <tr key={protocol.name} className="hover:bg-gray-50 transition-colors">
-                <td className="py-3 px-4">
-                  <span className="font-semibold text-gray-900">{protocol.name}</span>
-                </td>
-                <td className="py-3 px-4">
-                  <span className="text-emerald-600 font-medium">{protocol.apy}</span>
-                </td>
-                <td className="py-3 px-4">
-                  <span className="text-gray-600">{protocol.tvl}</span>
-                </td>
-                <td className="py-3 px-4">
-                  <span className={`font-medium ${protocol.riskColor}`}>{protocol.risk}</span>
-                </td>
+      <div className="card card-bordered shadow-xl">
+        <div className="overflow-x-auto">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Protocol</th>
+                <th>APY</th>
+                <th>TVL</th>
+                <th>Risk</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {protocols.map((protocol) => (
+                <tr key={protocol.name} className="hover">
+                  <td>
+                    <span className="font-semibold">{protocol.name}</span>
+                  </td>
+                  <td>
+                    <span className="text-success font-medium">{protocol.apy}</span>
+                  </td>
+                  <td>
+                    <span className="opacity-70">{protocol.tvl}</span>
+                  </td>
+                  <td>
+                    <span className={`badge ${protocol.riskBadge}`}>{protocol.risk}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <p className="text-xs text-gray-500 mt-4 text-center">
+      <p className="text-xs opacity-60 mt-4 text-center">
         Data updates in real-time based on current market conditions
       </p>
     </section>
