@@ -1,0 +1,17 @@
+# Docker Compose utilisant l'image pré-buildée par GitHub Actions
+# À utiliser dans Coolify pour éviter de builder sur le serveur
+services:
+  app:
+    # Remplacez <username>/<repo> par votre repo GitHub
+    # Exemple: ghcr.io/jasonsmith/aocyieldapp:latest
+    image: ghcr.io/${GITHUB_REPO}:latest
+
+    environment:
+      NODE_ENV: production
+      # Les variables Vite sont déjà compilées dans l'image
+      # Pas besoin de les passer ici
+
+    ports:
+      - 4004:3000
+
+    restart: unless-stopped

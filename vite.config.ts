@@ -19,5 +19,15 @@ export default defineConfig({
     sourcemap: false,          // 🔥 énorme gain mémoire
     minify: 'esbuild',         // plus léger que terser
     target: 'es2020',
+    chunkSizeWarningLimit: 1000, // Augmente la limite avant warning
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Sépare les gros vendors pour éviter les chunks trop lourds
+          'react-vendor': ['react', 'react-dom'],
+          'web3-vendor': ['@getpara/react-sdk', '@zyfai/sdk'],
+        },
+      },
+    },
   },
 })

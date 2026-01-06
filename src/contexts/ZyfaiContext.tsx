@@ -124,12 +124,26 @@ export function ZyfaiProvider({ children }: { children: ReactNode }) {
       setIsDeployed(walletInfo.isDeployed);
       setIsConnected(true);
 
-      console.log('Zyfai connected:', {
+      console.log('🔗 Zyfai connected:', {
         eoa: eoaAddress,
         smartWallet: walletInfo.address,
         deployed: walletInfo.isDeployed,
         chainId: supportedChainId,
       });
+
+      // If deployment status is uncertain, double-check by fetching positions
+      if (!walletInfo.isDeployed) {
+        try {
+          const positions = await sdk.getPositions(eoaAddress, supportedChainId);
+          // If we get positions data back, the Safe is actually deployed
+          if (positions.success && positions.positions && positions.positions.length > 0) {
+            console.log('✅ Safe detected via positions API - updating deployment status');
+            setIsDeployed(true);
+          }
+        } catch (error) {
+          // Ignore errors - Safe might not be deployed yet
+        }
+      }
 
       // Check session key status if Safe is deployed
       if (walletInfo.isDeployed) {
@@ -197,20 +211,30 @@ export function ZyfaiProvider({ children }: { children: ReactNode }) {
     try {
       const walletInfo = await sdk.getSmartWalletAddress(connectedAddress, currentChainId);
       setSmartWalletAddress(walletInfo.address);
-      setIsDeployed(walletInfo.isDeployed);
-      console.log('Wallet info refreshed:', walletInfo);
 
-      // Also check session key status if Safe is deployed
-      if (walletInfo.isDeployed) {
-        try {
-          const positions = await sdk.getPositions(connectedAddress, currentChainId);
-          // Session key status is nested in the first position object
-          const hasSessionKey = positions.positions?.[0]?.hasActiveSessionKey || false;
-          console.log('Session key status:', hasSessionKey);
-          setHasSessionKey(hasSessionKey);
-        } catch (error) {
-          console.warn('Could not check session key status:', error);
-        }
+      // Check positions to verify deployment status and session key
+      try {
+        const positions = await sdk.getPositions(connectedAddress, currentChainId);
+
+        // If we get positions data, Safe is deployed
+        const actuallyDeployed = walletInfo.isDeployed ||
+          (positions.success && positions.positions && positions.positions.length > 0);
+
+        setIsDeployed(actuallyDeployed);
+
+        // Check session key status
+        const hasSessionKey = positions.positions?.[0]?.hasActiveSessionKey || false;
+        setHasSessionKey(hasSessionKey);
+
+        console.log('🔄 Wallet info refreshed:', {
+          address: walletInfo.address,
+          deployed: actuallyDeployed,
+          sessionKey: hasSessionKey,
+        });
+      } catch (error) {
+        // Fallback to wallet info if positions check fails
+        setIsDeployed(walletInfo.isDeployed);
+        console.warn('Could not check positions, using wallet info only:', error);
       }
     } catch (error) {
       console.error('Failed to refresh wallet info:', error);
