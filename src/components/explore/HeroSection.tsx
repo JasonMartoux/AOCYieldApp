@@ -1,18 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-import { useModal, useAccount } from '@getpara/react-sdk';
+import { Link } from 'react-router-dom';
+import { useAccount } from '@getpara/react-sdk';
+import { ConnectButton } from '../ui/ConnectButton';
 
 export function HeroSection() {
-  const navigate = useNavigate();
-  const { openModal } = useModal();
   const { isConnected } = useAccount();
-
-  const handleStartEarning = () => {
-    if (isConnected) {
-      navigate('/dashboard');
-    } else {
-      openModal();
-    }
-  };
 
   return (
     <section className="max-w-4xl mx-auto text-center mb-16">
@@ -37,9 +28,15 @@ export function HeroSection() {
         </div>
       </div>
 
-      <button onClick={handleStartEarning} className="btn btn-success btn-lg">
-        Start Earning →
-      </button>
+      {isConnected ? (
+        <Link to="/dashboard" className="btn btn-success btn-lg gap-2">
+          Go to Dashboard →
+        </Link>
+      ) : (
+        <div className="inline-block">
+          <ConnectButton />
+        </div>
+      )}
     </section>
   );
 }

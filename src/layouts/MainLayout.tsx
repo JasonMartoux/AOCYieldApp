@@ -1,14 +1,13 @@
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { useModal, useAccount } from '@getpara/react-sdk';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useAccount } from '@getpara/react-sdk';
 import { useZyfai } from '../contexts/ZyfaiContext';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
+import { ConnectButton } from '../components/ui/ConnectButton';
 import { Navigate } from 'react-router-dom';
 
 export function MainLayout() {
-  const { openModal } = useModal();
   const { isConnected } = useAccount();
   const { isConnected: zyfaiConnected } = useZyfai();
-  const navigate = useNavigate();
   const location = useLocation();
 
   const isDashboard = location.pathname.startsWith('/dashboard');
@@ -17,14 +16,6 @@ export function MainLayout() {
   if (isDashboard && !isConnected) {
     return <Navigate to="/" replace />;
   }
-
-  const handleConnect = () => {
-    if (isConnected) {
-      navigate('/dashboard');
-    } else {
-      openModal();
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-base-200">
@@ -109,39 +100,8 @@ export function MainLayout() {
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* Action Button */}
-          {isDashboard ? (
-            <button
-              onClick={() => openModal()}
-              className="btn btn-primary gap-2 shadow-lg"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-              <span className="hidden sm:inline">Switch Wallet</span>
-            </button>
-          ) : (
-            <button
-              onClick={handleConnect}
-              className="btn btn-primary gap-2 shadow-lg"
-            >
-              {isConnected ? (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                  <span className="hidden sm:inline">Go to Dashboard</span>
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  <span>Connect Wallet</span>
-                </>
-              )}
-            </button>
-          )}
+          {/* Connect Button */}
+          <ConnectButton />
         </div>
       </header>
 
