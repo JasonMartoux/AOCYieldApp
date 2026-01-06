@@ -45,5 +45,6 @@ jobs:
             VITE_PARA_API_KEY=${{ secrets.VITE_PARA_API_KEY }}
             VITE_ZYFAI_API_KEY=${{ secrets.VITE_ZYFAI_API_KEY }}
             VITE_ZYFAI_ENVIRONMENT=${{ secrets.VITE_ZYFAI_ENVIRONMENT }}
+            NODE_MAX_OLD_SPACE_SIZE=6144
           cache-from: type=gha
           cache-to: type=gha,mode=max
