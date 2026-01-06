@@ -6,16 +6,20 @@ import { useGetOpportunities } from '../../hooks/useZyfaiOperations';
 
 export function HeroSection() {
   const { isConnected } = useAccount();
-  const { fetchSafeOpportunities, safeOpportunities, isPending } = useGetOpportunities();
+  const { fetchSafeOpportunities, safeOpportunities, isPending, sdk } = useGetOpportunities();
   const [bestApy, setBestApy] = useState<number | null>(null);
 
-  // Fetch opportunities on mount (Base chain by default)
+  // Fetch opportunities when SDK is ready
   useEffect(() => {
-    fetchSafeOpportunities(8453); // Base chain
-  }, []);
+    if (sdk) {
+      fetchSafeOpportunities(8453); // Base chain
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sdk]);
 
   // Calculate best APY when data arrives
   useEffect(() => {
+    
     if (safeOpportunities && safeOpportunities.data && safeOpportunities.data.length > 0) {
       // Filter only live opportunities
       const liveOpportunities = safeOpportunities.data.filter((opp: any) => opp.status === 'live');

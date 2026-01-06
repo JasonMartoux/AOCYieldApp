@@ -2,15 +2,18 @@ import { useEffect, useState } from 'react';
 import { useGetOpportunities } from '../../hooks/useZyfaiOperations';
 
 export function StrategyComparison() {
-  const { fetchSafeOpportunities, fetchDegenStrategies, safeOpportunities, degenStrategies, isPending } = useGetOpportunities();
+  const { fetchSafeOpportunities, fetchDegenStrategies, safeOpportunities, degenStrategies, isPending, sdk } = useGetOpportunities();
   const [safeAvgApy, setSafeAvgApy] = useState<number | null>(null);
   const [degenAvgApy, setDegenAvgApy] = useState<number | null>(null);
 
-  // Fetch opportunities on mount (Base chain by default)
+  // Fetch opportunities when SDK is ready
   useEffect(() => {
-    fetchSafeOpportunities(8453); // Base chain
-    fetchDegenStrategies(8453); // Base chain
-  }, []);
+    if (sdk) {
+      fetchSafeOpportunities(8453); // Base chain
+      fetchDegenStrategies(8453); // Base chain
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sdk]);
 
   // Calculate average APY for Safe Strategy
   useEffect(() => {

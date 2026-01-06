@@ -10,13 +10,16 @@ interface Protocol {
 }
 
 export function ProtocolBreakdown() {
-  const { fetchSafeOpportunities, safeOpportunities, isPending } = useGetOpportunities();
+  const { fetchSafeOpportunities, safeOpportunities, isPending, sdk } = useGetOpportunities();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
 
-  // Fetch opportunities on mount (Base chain by default)
+  // Fetch opportunities when SDK is ready
   useEffect(() => {
-    fetchSafeOpportunities(8453); // Base chain
-  }, []);
+    if (sdk) {
+      fetchSafeOpportunities(8453); // Base chain
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sdk]);
 
   // Process opportunities to extract top protocols
   useEffect(() => {
