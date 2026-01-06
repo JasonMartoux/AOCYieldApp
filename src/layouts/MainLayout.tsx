@@ -29,7 +29,7 @@ export function MainLayout() {
               </div>
             </div>
             <div className="flex flex-col items-start">
-              <span className="font-bold text-xl tracking-tight">AOC Yield</span>
+              <span className="font-bold text-xl tracking-tight">LowFey Curator App</span>
               <span className="text-xs opacity-60 font-medium">Honest DeFi. No BS.</span>
             </div>
           </Link>
